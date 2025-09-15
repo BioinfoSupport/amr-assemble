@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+	"$defs": { 
+	    "genomic_params": { 
+			"title": "Input Reads Parameters",
+			"type": "object",
+			"properties": {
+				"samplesheet": { 
+					"type": "string",
+					"format": "file-path",
+					"pattern": "^\\S+\\.(csv)$",
+					"description": "Path to a CSV file containing the sample sheet."
+				},
+				 "long_reads": {
+					"type": "string",
+					"format": "file-path",
+					"pattern": "^\\S+\\.(bam|fastq\\.gz|fq\\.gz)$",
+					"description": "Path to BAM or FASTQ.GZ files containing ONT reads"
+      			}
+			},
+			"oneOf": [
+				{"required": ["samplesheet"], "not":{"required":["long_reads"]}},
+				{"required": ["long_reads"], "not":{"required":["samplesheet"]}}
+			]
+		},
+		"assembly_params": {
+			"title": "Reads Assembly Parameters",
+			"type": "object",
+			"required": [], 
+			"properties": {
+				"spades_short": {
+					"type": "boolean",
+					"default": false
+				},
+				"short_unicycler": {
+					"type": "boolean",
+					"default": false
+				},
+				"long_flye_medaka": {
+					"type": "boolean",
+					"default": false
+				},
+				"long_hybracter": {
+					"type": "boolean",
+					"default": false
+				},
+				"long_unicycler": {
+					"type": "boolean",
+					"default": false
+				},
+				"hybrid_hybracter": {
+					"type": "boolean",
+					"default": false
+				},
+				"hybrid_unicycler": {
+					"type": "boolean",
+					"default": false
+				},
+				"hybrid_flye_medaka_pilon": {
+					"type": "boolean",
+					"default": false
+				}
+			}
+		}
+	},
+	"allOf": [
+		{ "$ref": "#/$defs/genomic_params" },
+		{ "$ref": "#/$defs/assembly_params" }
+	]
+}
+
+
