@@ -27,7 +27,7 @@
 		"assembly_params": {
 			"title": "Reads Assembly Parameters",
 			"type": "object",
-			"required": [], 
+			"required": [],
 			"properties": {
 				"spades_short": {
 					"type": "boolean",

@@ -1,11 +1,11 @@
 
-include { MINIMAP2_ALIGN_ONT } from '../../modules/minimap2/align_ont'
+include { MINIMAP2_ALIGN_ONT } from './modules/minimap2/align_ont'
 include { SAMTOOLS_STATS as SAMTOOLS_STATS_LONG  } from './modules/samtools/stats'
 include { SAMTOOLS_STATS as SAMTOOLS_STATS_SHORT } from './modules/samtools/stats'
 include { BWA_MEM            } from './modules/bwa/mem'
 include { BWA_INDEX          } from './modules/bwa/index'
 include { ORGANIZE_FILES     } from './modules/organize_files'
-include { RMD_RENDER         } from '../../modules/rmd/render'
+include { RMD_RENDER         } from './modules/rmd/render'
 
 /* Assembly stats
 Number of contigs
@@ -73,9 +73,9 @@ workflow ASSEMBLY_QC {
 			MINIMAP2_ALIGN_ONT(fa_ch.join(fql_ch))
 			SAMTOOLS_STATS_LONG(MINIMAP2_ALIGN_ONT.out.bam)
 			
-			//RUN VCF_LONG
-			//RUN VCF_SHORT
-			//HTML_AND_JSON_QC_REPORT()
+			//TODO: RUN VCF_LONG
+			//TODO: RUN VCF_SHORT
+			//TODO: HTML_AND_JSON_QC_REPORT()
 			
 			fa_ch
 				.join(SAMTOOLS_STATS_LONG.out,remainder:true)
@@ -88,8 +88,8 @@ workflow ASSEMBLY_QC {
 				file("${moduleDir}/assets/isolate_assembly_qc.Rmd")
 			)
 
-			//CHARACTERIZE_UNMAPPED_READS
-			//QC_AGGREGATOR
+			//TODO: CHARACTERIZE_UNMAPPED_READS
+			//TODO: QC_AGGREGATOR
 	emit:
 		long_bam        = MINIMAP2_ALIGN_ONT.out.bam
 		long_bai        = MINIMAP2_ALIGN_ONT.out.bai

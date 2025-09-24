@@ -1,11 +1,12 @@
 
+nextflow.preview.output = true
+
+
 include { SAMTOOLS_FASTQ } from './modules/samtools/fastq'
 include { SEQUENCING_QC  } from './workflows/sequencing_qc'
 include { ASSEMBLE_READS } from './workflows/assemble_reads'
+include { ASSEMBLY_QC    } from './workflows/assembly_qc'
 include { validateParameters; paramsSummaryLog; samplesheetToList } from 'plugin/nf-schema'
-
-
-nextflow.preview.output = true
 
 def get_samplesheet() {
 	ss = [
@@ -55,18 +56,24 @@ workflow {
 		ss.lr_ch = ss.lr_ch.fq.mix(SAMTOOLS_FASTQ(ss.lr_ch.bam))
 				
 		// Reads Quality Controls
-		SEQUENCING_QC(
-			ss.lr_ch.filter({!params.skip_reads_qc}),
-			ss.sr_ch.filter({!params.skip_reads_qc})
-		)
+		seq_qc_ch = Channel.empty()
+		if (!params.skip_seq_qc) {
+			seq_qc_ch = SEQUENCING_QC(ss.lr_ch,ss.sr_ch).qc
+		}
 
 		// Reads assembly
-		ASSEMBLE_READS(params.assembly,ss.lr_ch,ss.sr_ch)
-		//ASSEMBLY_QC(ss.asm_ch,ss.lr_ch,ss.sr_ch)
+		asm_ch = ASSEMBLE_READS(params.assembly,ss.lr_ch,ss.sr_ch)
+		meta_map = asm_ch.map({m1,m2,dir,fa,info -> [m1,[m1,m2]]})
+		ASSEMBLY_QC(
+			asm_ch.map({m1,m2,dir,fa,info -> [[m1,m2],fa]}),
+			meta_map.join(ss.lr_ch).map({[it[1],it[2]]}),
+			meta_map.join(ss.sr_ch).map({[it[1],it[2]]})
+		)
+		
 		
 	publish:
-		sequencing_qc = SEQUENCING_QC.out.qc
-		assemblies    = ASSEMBLE_READS.out
+		sequencing_qc = seq_qc_ch
+		assemblies    = Channel.empty() //asm_ch
 }
 
 
@@ -77,7 +84,7 @@ output {
 		mode 'copy'
 	}
 	assemblies {
-		path { meta,meta2,x -> x >> "samples/${meta.sample_id}/assemblies/${meta2.assembly_name}" }
+		path { m,dir,fa,info -> dir >> "samples/${m[0].sample_id}/assemblies/${m[1].assembly_name}" }
 		mode 'copy'
 	}
 }

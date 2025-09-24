@@ -99,14 +99,14 @@ workflow ASSEMBLE_READS {
 		
 	emit:
 		assemblies = Channel.empty().mix(
-			SHORT_SPADES.out.map({meta,x -> [meta,[assembly_name:'short_spades'],x]}),
-			SHORT_UNICYCLER.out.map({meta,x -> [meta,[assembly_name:'short_unicycler'],x]}),
-			LONG_FLYE_MEDAKA.out.map({meta,x -> [meta,[assembly_name:'long_flye_medaka'],x]}),
-			LONG_UNICYCLER.out.map({meta,x -> [meta,[assembly_name:'long_unicycler'],x]}),
-			LONG_HYBRACTER.out.map({meta,x -> [meta,[assembly_name:'long_hybracter'],x]}),
-		  HYBRID_UNICYCLER.out.map({meta,x -> [meta,[assembly_name:'hybrid_unicycler'],x]}),
-		  HYBRID_HYBRACTER.out.map({meta,x -> [meta,[assembly_name:'hybrid_hybracter'],x]}),
-		  HYBRID_FLYE_MEDAKA_PILON.out.map({meta,x -> [meta,[assembly_name:'hybrid_flye_medaka_pilon'],x]})
+			SHORT_SPADES.out.map({meta,dir -> [meta,[assembly_name:'short_spades'],dir,null,null]}),
+			SHORT_UNICYCLER.out.map({meta,dir -> [meta,[assembly_name:'short_unicycler'],dir,dir / 'assembly.fasta',null]}),
+			LONG_FLYE_MEDAKA.out.map({meta,dir -> [meta,[assembly_name:'long_flye_medaka'],dir,dir / '02_medaka/consensus.fasta',null]}),
+			LONG_UNICYCLER.out.map({meta,dir -> [meta,[assembly_name:'long_unicycler'],dir,dir / 'assembly.fasta',null]}),
+			LONG_HYBRACTER.out.map({meta,dir -> [meta,[assembly_name:'long_hybracter'],dir,null,null]}),
+		  HYBRID_UNICYCLER.out.map({meta,dir -> [meta,[assembly_name:'hybrid_unicycler'],dir,dir / 'assembly.fasta',null]}),
+		  HYBRID_HYBRACTER.out.map({meta,dir -> [meta,[assembly_name:'hybrid_hybracter'],dir,null,null]}),
+		  HYBRID_FLYE_MEDAKA_PILON.out.map({meta,dir -> [meta,[assembly_name:'hybrid_flye_medaka_pilon'],dir,dir / '05_pilon_round3/pilon.fasta',null]})
 		)
 }
 
