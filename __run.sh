@@ -11,6 +11,9 @@ docker run --rm -it \
 
 nextflow run . -profile standard,arm64 --samplesheet=data/samplesheet.csv
 
+nextflow run . -profile standard,arm64 --assembly.short_unicycler=true --samplesheet=data/samplesheet.csv
+
+
 
 # Merge dev branch with master branch
 git checkout dev

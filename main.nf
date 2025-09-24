@@ -1,7 +1,7 @@
 
-include { SAMTOOLS_FASTQ                                          } from './modules/samtools/fastq'
-include { SEQUENCING_QC                                           } from './workflows/sequencing_qc'
-include { ASSEMBLE_READS                                         } from './workflows/assemble_reads'
+include { SAMTOOLS_FASTQ } from './modules/samtools/fastq'
+include { SEQUENCING_QC  } from './workflows/sequencing_qc'
+include { ASSEMBLE_READS } from './workflows/assemble_reads'
 include { validateParameters; paramsSummaryLog; samplesheetToList } from 'plugin/nf-schema'
 
 
@@ -60,12 +60,13 @@ workflow {
 			ss.sr_ch.filter({!params.skip_reads_qc})
 		)
 
-		// Reads assembly3
-		ASSEMBLE_READS(ss.lr_ch,ss.sr_ch)
+		// Reads assembly
+		ASSEMBLE_READS(params.assembly,ss.lr_ch,ss.sr_ch)
 		//ASSEMBLY_QC(ss.asm_ch,ss.lr_ch,ss.sr_ch)
-
+		
 	publish:
 		sequencing_qc = SEQUENCING_QC.out.qc
+		assemblies    = ASSEMBLE_READS.out
 }
 
 
@@ -73,6 +74,10 @@ workflow {
 output {
 	sequencing_qc {
 		path { x -> x[1] >> "." }
+		mode 'copy'
+	}
+	assemblies {
+		path { meta,meta2,x -> x >> "samples/${meta.sample_id}/assemblies/${meta2.assembly_name}" }
 		mode 'copy'
 	}
 }

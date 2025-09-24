@@ -49,65 +49,64 @@ workflow HYBRID_FLYE_MEDAKA_PILON {
 
 workflow ASSEMBLE_READS {
 	take:
+		opts
 		fql_ch    // channel: [ val(meta), path(long_reads) ]
 		fqs_ch    // channel: [ val(meta), path(short_reads) ]
 	main:
 		// Short reads only assemblies
 		SHORT_SPADES(
 			fqs_ch
-				.filter({params.short_spades})
+				.filter({opts.short_spades})
 				.map({meta,fqs -> [meta,fqs,[]]})
 		)
 		SHORT_UNICYCLER(
 			fqs_ch
-				.filter({params.short_unicycler})
+				.filter({opts.short_unicycler})
 				.map({meta,fqs -> [meta,fqs,[]]})
 		)
 		
 		// Long reads only assemblies
 		LONG_FLYE_MEDAKA(
 			fql_ch
-				.filter({params.long_flye_medaka|params.hybrid_flye_medaka_pilon})
+				.filter({opts.long_flye_medaka|opts.hybrid_flye_medaka_pilon})
 		)
 		LONG_HYBRACTER(
 			fql_ch
-				.filter({params.long_hybracter})
+				.filter({opts.long_hybracter})
 				.map({meta,fql -> [meta,[],fql]})
 		)
 		LONG_UNICYCLER(
 			fql_ch
-				.filter({params.long_unicycler})
+				.filter({opts.long_unicycler})
 				.map({meta,fql -> [meta,[],fql]})
 		)
 
 		// Hybrid assemblies
 		HYBRID_HYBRACTER(
 			fql_ch.join(fqs_ch)
-				.filter({params.hybrid_hybracter})
+				.filter({opts.hybrid_hybracter})
 				.map({meta,fql,fqs -> [meta,fqs,fql]})
 		)
 		HYBRID_UNICYCLER(
 			fql_ch.join(fqs_ch)
-				.filter({params.hybrid_unicycler})
+				.filter({opts.hybrid_unicycler})
 				.map({meta,fql,fqs -> [meta,fqs,fql]})
 		)
 		HYBRID_FLYE_MEDAKA_PILON(
 			LONG_FLYE_MEDAKA.out,
-			fqs_ch.filter({params.hybrid_flye_medaka_pilon})
+			fqs_ch.filter({opts.hybrid_flye_medaka_pilon})
 		)
-
-		// TODO: Run assemblies individual QC ?
-		// TODO: Run QC summary report ?
+		
 	emit:
-		short_spades     = SHORT_SPADES.out
-		short_unicycler  = SHORT_UNICYCLER.out
-		
-		long_flye_medaka = LONG_FLYE_MEDAKA.out
-		long_unicycler   = LONG_UNICYCLER.out
-		long_hybracter   = LONG_HYBRACTER.out
-		
-		hybrid_unicycler = HYBRID_UNICYCLER.out
-		hybrid_hybracter = HYBRID_HYBRACTER.out
-		hybrid_flye_medaka_pilon = HYBRID_FLYE_MEDAKA_PILON.out
+		assemblies = Channel.empty().mix(
+			SHORT_SPADES.out.map({meta,x -> [meta,[assembly_name:'short_spades'],x]}),
+			SHORT_UNICYCLER.out.map({meta,x -> [meta,[assembly_name:'short_unicycler'],x]}),
+			LONG_FLYE_MEDAKA.out.map({meta,x -> [meta,[assembly_name:'long_flye_medaka'],x]}),
+			LONG_UNICYCLER.out.map({meta,x -> [meta,[assembly_name:'long_unicycler'],x]}),
+			LONG_HYBRACTER.out.map({meta,x -> [meta,[assembly_name:'long_hybracter'],x]}),
+		  HYBRID_UNICYCLER.out.map({meta,x -> [meta,[assembly_name:'hybrid_unicycler'],x]}),
+		  HYBRID_HYBRACTER.out.map({meta,x -> [meta,[assembly_name:'hybrid_hybracter'],x]}),
+		  HYBRID_FLYE_MEDAKA_PILON.out.map({meta,x -> [meta,[assembly_name:'hybrid_flye_medaka_pilon'],x]})
+		)
 }
 
