@@ -1,0 +1,14 @@
+
+run_modules:
+  - samtools
+  - nanostat
+  - fastqc
+extra_fn_clean_trim:
+  - ".nanostat"
+
+sp:
+  samtools/stats:
+    fn: "*.cram.stats"
+  nanostat:
+    fn: "*.nanostat"
+ 
