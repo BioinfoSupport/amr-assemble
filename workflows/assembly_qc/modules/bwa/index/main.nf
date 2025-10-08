@@ -11,4 +11,8 @@ process BWA_INDEX {
 	    """
 	    mkdir -p "index" && bwa index ${task.ext.args?:''} -p "index/index" ref.fasta
 	    """
+	  stub:
+	  	"""
+	  	mkdir -p index
+	  	"""
 }

@@ -7,6 +7,8 @@ include { BWA_INDEX          } from './modules/bwa/index'
 include { ORGANIZE_FILES     } from './modules/organize_files'
 include { RMD_RENDER         } from './modules/rmd/render'
 
+
+
 /* Assembly stats
 Number of contigs
 Total assembly length

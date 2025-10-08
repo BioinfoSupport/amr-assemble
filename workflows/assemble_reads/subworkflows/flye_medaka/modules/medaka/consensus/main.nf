@@ -16,4 +16,9 @@ process MEDAKA_CONSENSUS {
 			    -i long_reads.fastq.gz \\
 			    -o medaka
 		    """
+		stub:		    
+		    """
+		    mkdir -p medaka/
+		    touch medaka/consensus.fasta
+		    """
 }

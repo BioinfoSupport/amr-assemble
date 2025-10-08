@@ -16,4 +16,11 @@ process FASTQC {
 	        --memory 5000 \\
 	        ${reads}
 	    """
+	  stub:
+	  	"""
+	  	touch read1_fastqc.html
+	  	touch read2_fastqc.html
+	  	touch read1_fastqc.zip
+	  	touch read2_fastqc.zip
+	  	"""
 }

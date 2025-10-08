@@ -20,6 +20,10 @@ process HYBRACTER {
 				    ${short_reads} ${nanopore_reads} \\
 				    -o hybracter
 		    """
+    stub:
+		    """
+		    mkdir -p hybracter/
+		    """
 }
 
 

@@ -12,5 +12,10 @@ process MINIMAP2_ALIGN_ONT {
 	    """
 	    minimap2 -x map-ont ${task.ext.args?:''} -t ${task.cpus} ref.fasta reads.fastq.gz -a | samtools sort -@ ${task.cpus} --write-index -O BAM -o out.bam##idx##out.bam.bai
 	    """
+		stub:
+			"""
+			touch out.bam
+			touch out.bam.bai
+			"""
 }
 

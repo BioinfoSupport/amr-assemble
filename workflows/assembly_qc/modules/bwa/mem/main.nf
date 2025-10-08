@@ -12,4 +12,9 @@ process BWA_MEM {
 	    """
 	    bwa mem ${task.ext.args?:''} -t ${task.cpus} index/index ${reads.join(' ')} | samtools sort -@ ${task.cpus} --write-index -O BAM -o out.bam##idx##out.bam.bai
 	    """
+	  stub:
+		  """
+		  touch out.bam
+		  touch out.bam.bai
+		  """
 }

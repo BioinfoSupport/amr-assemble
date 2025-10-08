@@ -63,6 +63,8 @@ workflow {
 
 		// Reads assembly
 		asm_ch = ASSEMBLE_READS(params.assembly,ss.lr_ch,ss.sr_ch)
+
+		// Assembly QC
 		meta_map = asm_ch.map({m1,m2,dir,fa,info -> [m1,[m1,m2]]})
 		ASSEMBLY_QC(
 			asm_ch.map({m1,m2,dir,fa,info -> [[m1,m2],fa]}),
@@ -72,8 +74,9 @@ workflow {
 		
 		
 	publish:
-		sequencing_qc = seq_qc_ch
-		assemblies    = Channel.empty() //asm_ch
+		sequencing_qc    = seq_qc_ch
+		assemblies       = asm_ch.map({m1,m2,dir,fa,info -> [m1,m2,dir]})
+		assembly_qc_html = Channel.empty()
 }
 
 
@@ -84,7 +87,11 @@ output {
 		mode 'copy'
 	}
 	assemblies {
-		path { m,dir,fa,info -> dir >> "samples/${m[0].sample_id}/assemblies/${m[1].assembly_name}" }
+		path { m1,m2,dir -> dir >> "prout/${m1.sample_id}/assemblies/${m2.assembly_name}"}
+		mode 'copy'
+	}
+	assembly_qc_html {
+		path { x -> x[1] >> "prout2"}
 		mode 'copy'
 	}
 }

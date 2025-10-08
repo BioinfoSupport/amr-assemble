@@ -12,4 +12,8 @@ process SAMTOOLS_STATS {
 				"""
 				samtools stats -@ ${task.cpus} ${task.ext.args?:''} input.bam > input.bam.stats
 				"""
+		stub:
+				"""
+				touch input.bam.stats
+				"""
 }

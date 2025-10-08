@@ -13,4 +13,9 @@ process NANOPLOT {
     """
     NanoPlot --threads ${task.cpus} --fastq reads.fastq.gz -o nanoplot
     """
+    stub:
+    """
+    mkdir -p nanoplot
+    touch nanoplot/NanoStats.txt
+    """    
 }

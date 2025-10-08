@@ -15,4 +15,9 @@ process FLYE {
 		      --out-dir ./flye \\
 		      --nano-hq long_reads.fastq.gz
 		    """
+    stub:
+		    """
+		    mkdir -p flye/
+		    touch flye/assembly.fasta
+		    """
 }
