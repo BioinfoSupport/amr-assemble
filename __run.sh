@@ -9,9 +9,9 @@ docker run --rm -it \
   --env NXF_HOME=$(pwd)/.nextflow_home \
   nextflow/nextflow:25.04.8 bash
 
-nextflow run . -profile standard,arm64 -stub --samplesheet=data/samplesheet.csv
 
-nextflow run . -profile standard,arm64 --assembly.short_unicycler=true --samplesheet=data/samplesheet.csv
+nextflow run . -profile standard,arm64 -stub --samplesheet=data/samplesheet.csv
+nextflow run . -profile standard,arm64 --assembly.short_unicycler=true --assembly.short_spades=true --samplesheet=data/samplesheet.csv
 
 
 

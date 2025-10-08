@@ -3,6 +3,7 @@ nextflow.preview.output = true
 
 
 include { SAMTOOLS_FASTQ } from './modules/samtools/fastq'
+//include { FQ_SUBSAMPLE   } from './modules/fq_subsample'
 include { SEQUENCING_QC  } from './workflows/sequencing_qc'
 include { ASSEMBLE_READS } from './workflows/assemble_reads'
 include { ASSEMBLY_QC    } from './workflows/assembly_qc'
@@ -54,7 +55,11 @@ workflow {
 			fq: true
 		})
 		ss.lr_ch = ss.lr_ch.fq.mix(SAMTOOLS_FASTQ(ss.lr_ch.bam))
-				
+
+		// Reduce FASTQ size if needed
+		//ss.lr_ch = FQ_SUBSAMPLE(ss.lr_ch)
+
+
 		// Reads Quality Controls
 		seq_qc_ch = Channel.empty()
 		if (!params.skip_seq_qc) {
