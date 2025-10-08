@@ -12,7 +12,8 @@ workflow SEQUENCING_QC {
 		// Reads Quality Controls
 		NANOPLOT(fql_ch)
 		FASTQC(fqs_ch)
-		
+
+/* 
 		ORGANIZE_FILES(
 			Channel.empty().mix(
 				FASTQC.out.html.map({meta,files -> files.withIndex().collect({f,i -> [f,"samples/${meta.sample_id}/short_reads/fastqc_read${i+1}.html"]})}),
@@ -21,7 +22,7 @@ workflow SEQUENCING_QC {
 			.collect({it})
 			.map({["sequencing_qc",it]})
 		)
-
+*/
 		// MultiQC
 		/*
 		ORGANIZE_FILES(
@@ -43,7 +44,7 @@ workflow SEQUENCING_QC {
 		long_nanostat = NANOPLOT.out.nanostat
 		short_fastqc_html = FASTQC.out.html
 		short_fastqc_zip  = FASTQC.out.zip
-		qc = ORGANIZE_FILES.out
+		multiqc = Channel.empty()
 }
 
 

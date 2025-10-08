@@ -58,7 +58,7 @@ workflow {
 		// Reads Quality Controls
 		seq_qc_ch = Channel.empty()
 		if (!params.skip_seq_qc) {
-			seq_qc_ch = SEQUENCING_QC(ss.lr_ch,ss.sr_ch).qc
+			seq_multiqc_ch = SEQUENCING_QC(ss.lr_ch,ss.sr_ch).multiqc
 		}
 
 		// Reads assembly
@@ -74,15 +74,15 @@ workflow {
 		
 		
 	publish:
-		sequencing_qc    = seq_qc_ch
-		assemblies       = asm_ch.map({m1,m2,dir,fa,info -> [m1,m2,dir]})
-		assembly_qc_html = Channel.empty()
+		sequencing_multiqc = seq_multiqc_ch
+		assemblies         = asm_ch.map({m1,m2,dir,fa,info -> [m1,m2,dir]})
+		assembly_qc_html   = Channel.empty()
 }
 
 
 
 output {
-	sequencing_qc {
+	sequencing_multiqc {
 		path { x -> x[1] >> "." }
 		mode 'copy'
 	}
