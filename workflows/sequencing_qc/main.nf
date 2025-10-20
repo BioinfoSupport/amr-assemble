@@ -2,6 +2,7 @@
 include { ORGANIZE_FILES } from './modules/organize_files'
 include { NANOPLOT       } from './modules/nanoplot'
 include { FASTQC         } from './modules/fastqc'
+include { MULTIQC        } from './modules/multiqc'
 include { validateParameters; paramsSummaryLog; samplesheetToList } from 'plugin/nf-schema'
 
 workflow SEQUENCING_QC {
@@ -13,38 +14,23 @@ workflow SEQUENCING_QC {
 		NANOPLOT(fql_ch)
 		FASTQC(fqs_ch)
 
-/* 
-		ORGANIZE_FILES(
-			Channel.empty().mix(
-				FASTQC.out.html.map({meta,files -> files.withIndex().collect({f,i -> [f,"samples/${meta.sample_id}/short_reads/fastqc_read${i+1}.html"]})}),
-				NANOPLOT.out.nanoplot.map({meta,file -> [[file,"samples/${meta.sample_id}/long_reads/nanoplot"]]})
-			)
-			.collect({it})
-			.map({["sequencing_qc",it]})
-		)
-*/
 		// MultiQC
-		/*
 		ORGANIZE_FILES(
 			Channel.empty().mix(
-				ASSEMBLY_QC.out.long_bam_stats.map({meta,file -> [file,"${meta.sample_id}_long.bam.stats"]}),
-				ASSEMBLY_QC.out.short_bam_stats.map({meta,file -> [file,"${meta.sample_id}_short.bam.stats"]}),
-				LONG_READS.out.nanostat.map({meta,file -> [file,"${meta.sample_id}_long.nanostat"]}),
-				SHORT_READS.out.fastqc_zip.map({meta,files -> [files[0],"${meta.sample_id}_short_fastqc.zip"]}),
-				SHORT_READS.out.fastqc_zip.map({meta,files -> [files[1],"${meta.sample_id}_short_R2_fastqc.zip"]})
+				NANOPLOT.out.nanostat.map({meta,file -> [file,"${meta.sample_id}.nanostat"]}),
+				FASTQC.out.zip.map({meta,file -> [file,"${meta.sample_id}_fastqc.zip"]})
 			)
 			.collect({[it]})
-			.map({["unused",it]})
+			.map({["multiqc.html",it]})
 		)
-		MULTIQC(ORGANIZE_FILES.out,file("${moduleDir}/assets/multiqc/config.yml"))
-		*/
+		MULTIQC(ORGANIZE_FILES.out,file("${moduleDir}/assets/multiqc_config.yml"))
 
 	emit:
 		long_nanoplot = NANOPLOT.out.nanoplot
 		long_nanostat = NANOPLOT.out.nanostat
 		short_fastqc_html = FASTQC.out.html
 		short_fastqc_zip  = FASTQC.out.zip
-		multiqc = Channel.empty()
+		multiqc_html      = MULTIQC.out.html
 }
 
 

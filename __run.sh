@@ -10,8 +10,8 @@ docker run --rm -it \
   nextflow/nextflow:25.04.8 bash
 
 
-nextflow run . -profile standard,arm64 -stub --samplesheet=data/samplesheet.csv
-nextflow run . -profile standard,arm64 --assembly.short_unicycler=true --assembly.short_spades=true --samplesheet=data/samplesheet.csv
+nextflow run . -profile docker,arm64 -stub --samplesheet=data/samplesheet.csv
+nextflow run . -profile docker,arm64 --assembly.short_unicycler=true --assembly.short_spades=true --samplesheet=data/samplesheet.csv
 
 
 
@@ -27,4 +27,8 @@ git checkout dev
 
 
 
+
+ssh prados@bamboo
+
+apptainer run 
 

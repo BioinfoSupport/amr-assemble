@@ -10,17 +10,17 @@ process FASTQC {
 	    tuple val(meta), path("*_fastqc.zip"), emit: zip
     script:
 	    """
+	    gzip -dc ${reads} | gzip > ${meta.sample_id}.fastq.gz
 	    fastqc \\
 	        ${task.ext.args?:''} \\
 	        --threads ${task.cpus} \\
 	        --memory 5000 \\
-	        ${reads}
+	        ${meta.sample_id}.fastq.gz
+	    rm ${meta.sample_id}.fastq.gz
 	    """
 	  stub:
 	  	"""
-	  	touch read1_fastqc.html
-	  	touch read2_fastqc.html
-	  	touch read1_fastqc.zip
-	  	touch read2_fastqc.zip
+	  	touch ${meta.sample_id}_fastqc.html
+	  	touch ${meta.sample_id}_fastqc.zip
 	  	"""
 }

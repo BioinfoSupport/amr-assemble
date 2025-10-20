@@ -12,12 +12,12 @@
 					"pattern": "^\\S+\\.(csv)$",
 					"description": "Path to a CSV file containing the sample sheet."
 				},
-				 "long_reads": {
+				"long_reads": {
 					"type": "string",
 					"format": "file-path",
 					"pattern": "^\\S+\\.(bam|fastq\\.gz|fq\\.gz)$",
 					"description": "Path to BAM or FASTQ.GZ files containing ONT reads"
-      			}
+      	}
 			},
 			"oneOf": [
 				{"required": ["samplesheet"], "not":{"required":["long_reads"]}},
