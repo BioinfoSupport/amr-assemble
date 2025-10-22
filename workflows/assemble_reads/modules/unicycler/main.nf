@@ -3,6 +3,7 @@ process UNICYCLER {
     memory '20 GB'
     cpus 8
     time '4h'
+    ext.args = ''
     input:
         tuple val(meta), path(illumina), path(nanopore)
     output:
@@ -18,7 +19,7 @@ process UNICYCLER {
 		    #${illumina.class}
 		    #${illumina.join(" ")}
 		    unicycler \\
-		        ${task.ext.args?:''} \\
+		        ${task.ext.args} \\
 		        --threads ${task.cpus} \\
 		        ${short_reads} ${nanopore_reads} \\
 		        --out ./unicycler/

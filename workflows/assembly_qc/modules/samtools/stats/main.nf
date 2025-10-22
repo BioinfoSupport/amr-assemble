@@ -4,13 +4,14 @@ process SAMTOOLS_STATS {
     memory '12 GB'
     cpus 1
     time '30 min'
+    ext.args = ''
     input:
     		tuple val(meta), path("input.bam")
     output:
     		tuple val(meta), path("input.bam.stats")
     script:
 				"""
-				samtools stats -@ ${task.cpus} ${task.ext.args?:''} input.bam > input.bam.stats
+				samtools stats -@ ${task.cpus} ${task.ext.args} input.bam > input.bam.stats
 				"""
 		stub:
 				"""

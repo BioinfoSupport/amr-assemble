@@ -3,6 +3,7 @@ process FLYE {
     memory '20 GB'
     cpus 8
     time '4h'
+    ext.args = ''
     input:
         tuple val(meta), path('long_reads.fastq.gz')
     output:
@@ -11,7 +12,7 @@ process FLYE {
     script:
 		    """
 		    flye \\
-		      ${task.ext.args?:''} \\
+		      ${task.ext.args} \\
 		      --threads ${task.cpus} \\
 		      --out-dir ./flye \\
 		      --nano-hq long_reads.fastq.gz

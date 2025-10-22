@@ -3,6 +3,7 @@ process HYBRACTER {
     memory '20 GB'
     cpus 8
     time '4h'
+    ext.args = ''
     input:
         tuple val(meta), path(illumina), path(nanopore)
     output:
@@ -16,7 +17,7 @@ process HYBRACTER {
 		    """
 		    fail
 				hybracter ${cmd} \\
-				    ${task.ext.args?:''} \\
+				    ${task.ext.args} \\
 				    --threads ${task.cpus} \\
 				    --auto \\
 				    ${short_reads} ${nanopore_reads} \\
