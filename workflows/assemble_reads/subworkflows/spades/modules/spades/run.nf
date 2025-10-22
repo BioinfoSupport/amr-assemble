@@ -1,4 +1,4 @@
-process SPADES {
+process SPADES_RUN {
     container 'quay.io/biocontainers/spades:4.2.0--h8d6e82b_1'
     memory '20 GB'
     cpus 8
@@ -7,8 +7,7 @@ process SPADES {
     input:
         tuple val(meta), path(illumina), path(nanopore)
     output:
-        tuple val(meta), path('spades',type:'dir'), emit: dir
-        tuple val(meta), path('assembly.fasta'), emit: fasta
+        tuple val(meta), path('spades',type:'dir')
     script:
 	      def nanopore_reads = nanopore?"--nanopore $nanopore":''
 	      illumina = illumina instanceof List?illumina:[illumina]
@@ -20,16 +19,11 @@ process SPADES {
 		        --memory ${task.memory.toGiga()} \\
 		        ${short_reads} ${nanopore_reads} \\
 		        -o ./spades/
-		    if [ -f spades/scaffolds.fasta ]; then 
-		    	cp spades/scaffolds.fasta assembly.fasta
-		    else
-		    	cp spades/contigs.fasta assembly.fasta
-		    fi
 		    """
     stub:
 		    """
 		    mkdir -p spades
-		    touch assembly.fasta
+		    touch spades/scaffolds.fasta
 		    """
 		    
 }
