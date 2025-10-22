@@ -10,7 +10,6 @@ include { FLYE_MEDAKA  as LONG_FLYE_MEDAKA    } from './subworkflows/flye_medaka
 include { PILON_POLISH as PILON_POLISH_ROUND1 } from './subworkflows/pilon_polish'
 include { PILON_POLISH as PILON_POLISH_ROUND2 } from './subworkflows/pilon_polish'
 include { PILON_POLISH as PILON_POLISH_ROUND3 } from './subworkflows/pilon_polish'
-include { validateParameters; paramsSummaryLog; samplesheetToList } from 'plugin/nf-schema'
 
 
 
@@ -27,24 +26,22 @@ process HYBRID_FLYE_MEDAKA_PILON_FOLDER {
 
 workflow HYBRID_FLYE_MEDAKA_PILON {
 	take:
-		flye_medaka_ch
+		flye_medaka_fasta_ch
+		flye_medaka_dir_ch
 		fqs_ch
 	main:
-		pilon1_ch = PILON_POLISH_ROUND1(
-			flye_medaka_ch.map({meta,asm -> [meta,asm/'02_medaka/consensus.fasta']}),
-			fqs_ch
+		PILON_POLISH_ROUND1(flye_medaka_fasta_ch,fqs_ch)
+		PILON_POLISH_ROUND2(PILON_POLISH_ROUND1.out.fasta,fqs_ch)
+		PILON_POLISH_ROUND3(PILON_POLISH_ROUND2.out.fasta,fqs_ch)
+		HYBRID_FLYE_MEDAKA_PILON_FOLDER(
+			flye_medaka_dir_ch
+			.join(PILON_POLISH_ROUND1.out.dir)
+			.join(PILON_POLISH_ROUND2.out.dir)
+			.join(PILON_POLISH_ROUND3.out.dir)
 		)
-		pilon2_ch = PILON_POLISH_ROUND2(
-			pilon1_ch.map({meta,asm -> [meta,asm/'pilon.fasta']}),
-			fqs_ch
-		)
-		pilon3_ch = PILON_POLISH_ROUND3(
-			pilon2_ch.map({meta,asm -> [meta,asm/'pilon.fasta']}),
-			fqs_ch
-		)
-		HYBRID_FLYE_MEDAKA_PILON_FOLDER(flye_medaka_ch.join(pilon1_ch).join(pilon2_ch).join(pilon3_ch))
 	emit:
-		HYBRID_FLYE_MEDAKA_PILON_FOLDER.out
+		fasta = PILON_POLISH_ROUND3.out.fasta
+		dir = HYBRID_FLYE_MEDAKA_PILON_FOLDER.out
 }
 
 workflow ASSEMBLE_READS {
@@ -93,20 +90,22 @@ workflow ASSEMBLE_READS {
 				.map({meta,fql,fqs -> [meta,fqs,fql]})
 		)
 		HYBRID_FLYE_MEDAKA_PILON(
-			LONG_FLYE_MEDAKA.out,
+			LONG_FLYE_MEDAKA.out.fasta,
+			LONG_FLYE_MEDAKA.out.dir,
 			fqs_ch.filter({opts.hybrid_flye_medaka_pilon})
 		)
 		
 	emit:
-		assemblies = Channel.empty().mix(
-			SHORT_SPADES.out.map({meta,dir -> [meta,[assembly_name:'short_spades'],dir,dir / 'scaffolds.fasta',null]}),
-			SHORT_UNICYCLER.out.map({meta,dir -> [meta,[assembly_name:'short_unicycler'],dir,dir / 'assembly.fasta',null]}),
-			LONG_FLYE_MEDAKA.out.map({meta,dir -> [meta,[assembly_name:'long_flye_medaka'],dir,dir / '02_medaka/consensus.fasta',null]}),
-			LONG_UNICYCLER.out.map({meta,dir -> [meta,[assembly_name:'long_unicycler'],dir,dir / 'assembly.fasta',null]}),
-			LONG_HYBRACTER.out.map({meta,dir -> [meta,[assembly_name:'long_hybracter'],dir,dir / 'assembly.fasta',null]}),
-		  HYBRID_UNICYCLER.out.map({meta,dir -> [meta,[assembly_name:'hybrid_unicycler'],dir,dir / 'assembly.fasta',null]}),
-		  HYBRID_HYBRACTER.out.map({meta,dir -> [meta,[assembly_name:'hybrid_hybracter'],dir,dir / 'assembly.fasta',null]}),
-		  HYBRID_FLYE_MEDAKA_PILON.out.map({meta,dir -> [meta,[assembly_name:'hybrid_flye_medaka_pilon'],dir,dir / '05_pilon_round3/pilon.fasta',null]})
+		fasta = Channel.empty().mix(
+			SHORT_SPADES.out.fasta.map({meta,x -> [meta,[assembly_name:'short_spades'],x]}),
+			SHORT_UNICYCLER.out.fasta.map({meta,x -> [meta,[assembly_name:'short_unicycler'],x]}),
+			LONG_FLYE_MEDAKA.out.fasta.map({meta,x -> [meta,[assembly_name:'long_flye_medaka'],x]}),
+			LONG_UNICYCLER.out.fasta.map({meta,x -> [meta,[assembly_name:'long_unicycler'],x]}),
+			LONG_HYBRACTER.out.fasta.map({meta,x -> [meta,[assembly_name:'long_hybracter'],x]}),
+		  HYBRID_UNICYCLER.out.fasta.map({meta,x -> [meta,[assembly_name:'hybrid_unicycler'],x]}),
+		  HYBRID_HYBRACTER.out.fasta.map({meta,x -> [meta,[assembly_name:'hybrid_hybracter'],x]}),
+		  HYBRID_FLYE_MEDAKA_PILON.out.fasta.map({meta,x -> [meta,[assembly_name:'hybrid_flye_medaka_pilon'],x]})
 		)
+		dir = Channel.empty() //TODO
 }
 

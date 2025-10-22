@@ -6,7 +6,8 @@ process MEDAKA_CONSENSUS {
     input:
         tuple val(meta), path('assembly.fasta'), path('long_reads.fastq.gz')
     output:
-        tuple val(meta), path('medaka',type:'dir')
+        tuple val(meta), path('medaka',type:'dir'), emit: dir
+        tuple val(meta), path('consensus.fasta'), emit: fasta
     script:
 		    """
 		    medaka_consensus \\
@@ -15,10 +16,11 @@ process MEDAKA_CONSENSUS {
 			    -d assembly.fasta \\
 			    -i long_reads.fastq.gz \\
 			    -o medaka
+			  cp medaka/consensus.fasta ./
 		    """
 		stub:		    
 		    """
 		    mkdir -p medaka/
-		    touch medaka/consensus.fasta
+		    touch consensus.fasta
 		    """
 }

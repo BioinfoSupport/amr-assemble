@@ -67,36 +67,40 @@ workflow {
 		)
 
 		// Reads assembly
-		asm_ch = ASSEMBLE_READS(params.assembly,ss.lr_ch,ss.sr_ch)
+		ASSEMBLE_READS(params.assembly,ss.lr_ch,ss.sr_ch)
 
 		// Assembly QC
+		/*
 		meta_map = asm_ch.map({m1,m2,dir,fa,info -> [m1,[m1,m2]]})
 		ASSEMBLY_QC(
 			asm_ch.map({m1,m2,dir,fa,info -> [[m1,m2],fa]}),
 			meta_map.join(ss.lr_ch).map({[it[1],it[2]]}),
 			meta_map.join(ss.sr_ch).map({[it[1],it[2]]})
 		)
-		
+		*/
 		
 	publish:
 		sequencing_multiqc = SEQUENCING_QC.out.multiqc_html
-		assemblies         = asm_ch.map({m1,m2,dir,fa,info -> [m1,m2,dir]})
-		assembly_qc_html   = Channel.empty()
+		asm_fasta = ASSEMBLE_READS.out.fasta
+		asm_dir = ASSEMBLE_READS.out.dir
+		//assemblies_qc_html = ASSEMBLY_QC.out.html
 }
 
 
 
 output {
 	sequencing_multiqc {
-		path { x -> x[1] >> "./sequencing_qc.html" }
+		path { m,f -> "./sequencing_qc.html" }
 		mode 'copy'
 	}
-	assemblies {
-		path { m1,m2,dir -> dir >> "prout/${m1.sample_id}/assemblies/${m2.assembly_name}"}
+
+	asm_fasta {
+		path { m1,m2,x -> x >> "samples/${m1.sample_id}/assemblies/${m2.assembly_name}/assembly.fasta"}
 		mode 'copy'
 	}
-	assembly_qc_html {
-		path { x -> x[1] >> "prout2"}
+
+	asm_dir {
+		path { m1,m2,x -> x >> "samples/${m1.sample_id}/assemblies/${m2.assembly_name}/output"}
 		mode 'copy'
 	}
 }

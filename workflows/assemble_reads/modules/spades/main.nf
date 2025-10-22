@@ -6,7 +6,8 @@ process SPADES {
     input:
         tuple val(meta), path(illumina), path(nanopore)
     output:
-        tuple val(meta), path('spades',type:'dir')
+        tuple val(meta), path('spades',type:'dir'), emit: dir
+        tuple val(meta), path('assembly.fasta'), emit: fasta
     script:
 	      def nanopore_reads = nanopore?"--nanopore $nanopore":''
 	      illumina = illumina instanceof List?illumina:[illumina]
@@ -18,5 +19,16 @@ process SPADES {
 		        --memory ${task.memory.toGiga()} \\
 		        ${short_reads} ${nanopore_reads} \\
 		        -o ./spades/
+		    if [ -f spades/scaffolds.fasta ]; then 
+		    	cp spades/scaffolds.fasta assembly.fasta
+		    else
+		    	cp spades/contigs.fasta assembly.fasta
+		    fi
 		    """
+    stub:
+		    """
+		    mkdir -p spades
+		    touch assembly.fasta
+		    """
+		    
 }

@@ -11,7 +11,10 @@ workflow PILON_POLISH {
 		BWA_MEM(BWA_INDEX(fa_ch).join(fqs_ch))
 		PILON(fa_ch.join(BWA_MEM.out.bam).join(BWA_MEM.out.bai))
 	emit:
-		PILON.out
+		fasta = PILON.out.fasta
+		bam = BWA_MEM.out.bam
+		bai = BWA_MEM.out.bai
+		dir = PILON.out.dir
 }
 
 

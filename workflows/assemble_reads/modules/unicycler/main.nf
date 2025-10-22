@@ -6,7 +6,8 @@ process UNICYCLER {
     input:
         tuple val(meta), path(illumina), path(nanopore)
     output:
-        tuple val(meta), path('unicycler',type:'dir')
+        tuple val(meta), path('unicycler',type:'dir'), emit: dir
+        tuple val(meta), path('assembly.fasta'), emit: fasta
     script:
 	      def nanopore_reads = nanopore?"-l $nanopore":''
 	      illumina = illumina instanceof List?illumina:[illumina]
@@ -21,5 +22,11 @@ process UNICYCLER {
 		        --threads ${task.cpus} \\
 		        ${short_reads} ${nanopore_reads} \\
 		        --out ./unicycler/
+		    cp unicycler/assembly.fasta assembly.fasta
 		    """
+		stub:
+		"""
+		mkdir -p unicycler
+		touch assembly.fasta
+		"""
 }

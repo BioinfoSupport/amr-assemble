@@ -6,7 +6,8 @@ process FLYE {
     input:
         tuple val(meta), path('long_reads.fastq.gz')
     output:
-        tuple val(meta), path('flye',type:'dir')
+        tuple val(meta), path('flye',type:'dir'), emit: dir
+        tuple val(meta), path('assembly.fasta'), emit: fasta
     script:
 		    """
 		    flye \\
@@ -14,10 +15,11 @@ process FLYE {
 		      --threads ${task.cpus} \\
 		      --out-dir ./flye \\
 		      --nano-hq long_reads.fastq.gz
+		    cp flye/assembly.fasta assembly.fasta
 		    """
     stub:
 		    """
 		    mkdir -p flye/
-		    touch flye/assembly.fasta
+		    touch assembly.fasta
 		    """
 }
