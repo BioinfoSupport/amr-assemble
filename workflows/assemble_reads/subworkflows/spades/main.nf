@@ -9,5 +9,5 @@ workflow SHORT_SPADES {
 		SPADES_RUN(fqs_ch.map({meta,fqs -> [meta,fqs,[]]})) | SPADES_ADAPT
 	emit:
 		fasta = SPADES_ADAPT.out.fasta
-		dir   = SPADES_ADAPT.out.dir
+		dir   = SPADES_RUN.out
 }

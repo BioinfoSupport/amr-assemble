@@ -1,10 +1,10 @@
 
 
-include { UNICYCLER    as LONG_UNICYCLER      } from './modules/unicycler'
-include { UNICYCLER    as SHORT_UNICYCLER     } from './modules/unicycler'
-include { UNICYCLER    as HYBRID_UNICYCLER    } from './modules/unicycler'
-include { HYBRACTER    as LONG_HYBRACTER      } from './modules/hybracter'
-include { HYBRACTER    as HYBRID_HYBRACTER    } from './modules/hybracter'
+include { LONG_UNICYCLER                      } from './subworkflows/unicycler'
+include { SHORT_UNICYCLER                     } from './subworkflows/unicycler'
+include { HYBRID_UNICYCLER                    } from './subworkflows/unicycler'
+include { LONG_HYBRACTER                      } from './subworkflows/hybracter'
+include { HYBRID_HYBRACTER                    } from './subworkflows/hybracter'
 include { SHORT_SPADES                        } from './subworkflows/spades'
 include { FLYE_MEDAKA  as LONG_FLYE_MEDAKA    } from './subworkflows/flye_medaka'
 include { PILON_POLISH as PILON_POLISH_ROUND1 } from './subworkflows/pilon_polish'
@@ -52,39 +52,16 @@ workflow ASSEMBLE_READS {
 	main:
 		// Short reads only assemblies
 		SHORT_SPADES(fqs_ch.filter({opts.short_spades}))
-		SHORT_UNICYCLER(
-			fqs_ch
-				.filter({opts.short_unicycler})
-				.map({meta,fqs -> [meta,fqs,[]]})
-		)
+		SHORT_UNICYCLER(fqs_ch.filter({opts.short_unicycler}))
 		
 		// Long reads only assemblies
-		LONG_FLYE_MEDAKA(
-			fql_ch
-				.filter({opts.long_flye_medaka|opts.hybrid_flye_medaka_pilon})
-		)
-		LONG_HYBRACTER(
-			fql_ch
-				.filter({opts.long_hybracter})
-				.map({meta,fql -> [meta,[],fql]})
-		)
-		LONG_UNICYCLER(
-			fql_ch
-				.filter({opts.long_unicycler})
-				.map({meta,fql -> [meta,[],fql]})
-		)
+		LONG_FLYE_MEDAKA(fql_ch.filter({opts.long_flye_medaka|opts.hybrid_flye_medaka_pilon}))
+		LONG_HYBRACTER(fql_ch.filter({opts.long_hybracter}))
+		LONG_UNICYCLER(fql_ch.filter({opts.long_unicycler}))
 
 		// Hybrid assemblies
-		HYBRID_HYBRACTER(
-			fql_ch.join(fqs_ch)
-				.filter({opts.hybrid_hybracter})
-				.map({meta,fql,fqs -> [meta,fqs,fql]})
-		)
-		HYBRID_UNICYCLER(
-			fql_ch.join(fqs_ch)
-				.filter({opts.hybrid_unicycler})
-				.map({meta,fql,fqs -> [meta,fqs,fql]})
-		)
+		HYBRID_HYBRACTER(fql_ch.filter({opts.hybrid_unicycler}),fqs_ch)
+		HYBRID_UNICYCLER(fql_ch.filter({opts.hybrid_unicycler}),fqs_ch)
 		HYBRID_FLYE_MEDAKA_PILON(
 			LONG_FLYE_MEDAKA.out.fasta,
 			LONG_FLYE_MEDAKA.out.dir,
