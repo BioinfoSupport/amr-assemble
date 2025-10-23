@@ -1,4 +1,4 @@
-process SPADES_RUN {
+process SPADES {
     container 'quay.io/biocontainers/spades:4.2.0--h8d6e82b_1'
     memory '20 GB'
     cpus 8

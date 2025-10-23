@@ -1,4 +1,4 @@
-process UNICYCLER_RUN {
+process UNICYCLER {
     container 'quay.io/biocontainers/unicycler:0.5.1--py312hdcc493e_4'
     memory '20 GB'
     cpus 8

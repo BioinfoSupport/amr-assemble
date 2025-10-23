@@ -1,4 +1,4 @@
-process HYBRACTER_RUN {
+process HYBRACTER {
 	  container "quay.io/gbouras13/hybracter:0.11.2"
     memory '20 GB'
     cpus 8

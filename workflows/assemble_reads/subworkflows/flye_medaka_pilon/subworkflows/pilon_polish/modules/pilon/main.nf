@@ -7,8 +7,7 @@ process PILON {
     input:
         tuple val(meta), path('assembly.fasta'), path('short_reads.bam'), path('short_reads.bam.bai')
     output:
-        tuple val(meta), path('pilon',type:'dir'), emit: dir
-        tuple val(meta), path('pilon.fasta'), emit: fasta
+        tuple val(meta), path('pilon',type:'dir')
     script:
     """
     mkdir pilon \
@@ -18,12 +17,10 @@ process PILON {
        ${task.ext.args} \
        --threads ${task.cpus} \
        --output pilon/pilon
-    cp pilon/pilon.fasta ./
     """
     stub:
     """
     mkdir -p pilon
-    touch pilon.fasta
     """
 }
 
