@@ -5,6 +5,6 @@ process UNICYCLER_ADAPT {
       tuple val(meta), path('assembly.fasta'), emit:fasta
 	script:
 	"""
-			cp unicycler/assembly.fasta assembly.fasta
+			ln -s unicycler/assembly.fasta assembly.fasta
 	"""
 }

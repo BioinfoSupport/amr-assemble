@@ -6,9 +6,9 @@ process SPADES_ADAPT {
 	script:
 	"""
 		if [ -f spades/scaffolds.fasta ]; then
-			cp spades/scaffolds.fasta assembly.fasta
+			ln -s spades/scaffolds.fasta assembly.fasta
 		else
-			cp spades/contigs.fasta assembly.fasta
+			ln -s spades/contigs.fasta assembly.fasta
 		fi
 	"""
 } 
