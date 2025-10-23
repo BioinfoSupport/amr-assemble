@@ -1,6 +1,4 @@
 
-nextflow.preview.output = true
-
 
 include { SAMTOOLS_FASTQ } from './modules/samtools/fastq'
 //include { FQ_SUBSAMPLE   } from './modules/fq_subsample'
@@ -67,7 +65,7 @@ workflow {
 		)
 
 		// Reads assembly
-		ASSEMBLE_READS(params.assembly,ss.lr_ch,ss.sr_ch)
+		ASSEMBLE_READS(params.assembly,ss.sr_ch,ss.lr_ch)
 
 		// Assembly QC
 		/*

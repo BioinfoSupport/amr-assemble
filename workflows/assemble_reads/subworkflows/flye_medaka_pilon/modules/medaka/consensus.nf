@@ -3,7 +3,6 @@ process MEDAKA_CONSENSUS {
     memory '10 GB'
     cpus 4
     time '2h'
-    ext.args = '--bacteria'
     input:
         tuple val(meta), path('assembly.fasta'), path('long_reads.fastq.gz')
     output:
@@ -11,7 +10,7 @@ process MEDAKA_CONSENSUS {
     script:
 		    """
 		    medaka_consensus \\
-		      ${task.ext.args} \\
+		      ${task.ext.args?:'--bacteria'} \\
 			    -f -t ${task.cpus} \\
 			    -d assembly.fasta \\
 			    -i long_reads.fastq.gz \\

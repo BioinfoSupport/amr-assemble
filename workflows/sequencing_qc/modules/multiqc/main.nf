@@ -4,7 +4,6 @@ process MULTIQC {
     cpus = 2
     memory = '2 GB'
     time '1 h'
-    ext.args = ''
     input:
 	    tuple val(meta),path('db')
 	    each path('config.yml')
@@ -12,7 +11,7 @@ process MULTIQC {
 	    tuple val(meta),path('multiqc.html'), emit: html
     script:
 	    """
-	    multiqc ${task.ext.args} --force --config config.yml --filename multiqc.html db/
+	    multiqc ${task.ext.args?:''} --force --config config.yml --filename multiqc.html db/
 	    """
 	  stub:
 	  	"""

@@ -10,8 +10,8 @@ include { PILON_POLISH as PILON_POLISH_ROUND3 } from './subworkflows/pilon_polis
 
 workflow FLYE_MEDAKA_PILON {
 	take:
-		fql_ch
 		fqs_ch
+		fql_ch
 	main:
 		FLYE(fql_ch).join(fql_ch) | MEDAKA_CONSENSUS | MEDAKA_ADAPT
 		PILON_POLISH_ROUND1(MEDAKA_ADAPT.out.fasta,fqs_ch)

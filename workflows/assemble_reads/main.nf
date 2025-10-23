@@ -1,34 +1,34 @@
 
 
-include { LONG_UNICYCLER                                 } from './subworkflows/unicycler'
-include { SHORT_UNICYCLER                                } from './subworkflows/unicycler'
-include { HYBRID_UNICYCLER                               } from './subworkflows/unicycler'
-include { LONG_HYBRACTER                                 } from './subworkflows/hybracter'
-include { HYBRID_HYBRACTER                               } from './subworkflows/hybracter'
-include { SHORT_SPADES                                   } from './subworkflows/spades'
+include { UNICYCLER as LONG_UNICYCLER                    } from './subworkflows/unicycler'
+include { UNICYCLER as SHORT_UNICYCLER                   } from './subworkflows/unicycler'
+include { UNICYCLER as HYBRID_UNICYCLER                  } from './subworkflows/unicycler'
+include { HYBRACTER as LONG_HYBRACTER                    } from './subworkflows/hybracter'
+include { HYBRACTER as HYBRID_HYBRACTER                  } from './subworkflows/hybracter'
+include { SPADES    as SHORT_SPADES                      } from './subworkflows/spades'
 include { FLYE_MEDAKA_PILON as HYBRID_FLYE_MEDAKA_PILON  } from './subworkflows/flye_medaka_pilon'
 
 
 workflow ASSEMBLE_READS {
 	take:
 		opts
-		fql_ch    // channel: [ val(meta), path(long_reads) ]
 		fqs_ch    // channel: [ val(meta), path(short_reads) ]
+		fql_ch    // channel: [ val(meta), path(long_reads) ]
 	main:
 		// Short reads only assemblies
-		SHORT_SPADES(fqs_ch.filter({opts.short_spades}))
-		SHORT_UNICYCLER(fqs_ch.filter({opts.short_unicycler}))
+		SHORT_SPADES(fqs_ch.filter({opts.short_spades}),Channel.empty())
+		SHORT_UNICYCLER(fqs_ch.filter({opts.short_unicycler}),Channel.empty())
 		
 		// Long reads only assemblies
-		LONG_HYBRACTER(fql_ch.filter({opts.long_hybracter}))
-		LONG_UNICYCLER(fql_ch.filter({opts.long_unicycler}))
+		LONG_HYBRACTER(Channel.empty(),fql_ch.filter({opts.long_hybracter}))
+		LONG_UNICYCLER(Channel.empty(),fql_ch.filter({opts.long_unicycler}))
 
 		// Hybrid assemblies
-		HYBRID_HYBRACTER(fql_ch.filter({opts.hybrid_unicycler}),fqs_ch)
-		HYBRID_UNICYCLER(fql_ch.filter({opts.hybrid_unicycler}),fqs_ch)
+		HYBRID_HYBRACTER(fqs_ch.filter({opts.hybrid_hybracter}),fql_ch.filter({opts.hybrid_hybracter}))
+		HYBRID_UNICYCLER(fqs_ch.filter({opts.hybrid_unicycler}),fql_ch.filter({opts.hybrid_unicycler}))
 		HYBRID_FLYE_MEDAKA_PILON(
-			fql_ch.filter({opts.long_flye_medaka|opts.hybrid_flye_medaka_pilon}),
-			fqs_ch.filter({opts.hybrid_flye_medaka_pilon})
+			fqs_ch.filter({opts.hybrid_flye_medaka_pilon}),
+			fql_ch.filter({opts.long_flye_medaka|opts.hybrid_flye_medaka_pilon})
 		)
 	emit:
 		fasta = Channel.empty().mix(

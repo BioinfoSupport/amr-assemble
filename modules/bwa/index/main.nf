@@ -3,14 +3,13 @@ process BWA_INDEX {
     memory '5 GB'
     cpus 3
     time '1h'
-    ext.args = ''
     input:
 	    tuple val(meta), path('ref.fasta')
     output:
 	    tuple val(meta), path('index',type:'dir'), emit: index
     script:
 	    """
-	    mkdir -p "index" && bwa index ${task.ext.args} -p "index/index" ref.fasta
+	    mkdir -p "index" && bwa index ${task.ext.args?:''} -p "index/index" ref.fasta
 	    """
 	  stub:
 	  	"""

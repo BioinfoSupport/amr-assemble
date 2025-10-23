@@ -3,7 +3,6 @@ process FASTQC {
     cpus 3
     memory '5 GB'
     time '1h'
-    ext.args = ''
     input:
 	    tuple val(meta), path(reads)
     output:
@@ -13,7 +12,7 @@ process FASTQC {
 	    """
 	    gzip -dc ${reads} | gzip > ${meta.sample_id}.fastq.gz
 	    fastqc \\
-	        ${task.ext.args} \\
+	        ${task.ext.args?:''} \\
 	        --threads ${task.cpus} \\
 	        --memory 5000 \\
 	        ${meta.sample_id}.fastq.gz

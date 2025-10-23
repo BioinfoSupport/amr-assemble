@@ -1,13 +1,14 @@
 
-include { SPADES       } from './modules/spades'
-include { SPADES_ADAPT } from './modules/spades/adapt'
+include { SPADES as SPADES_RUN } from './modules/spades'
+include { SPADES_ADAPT         } from './modules/spades/adapt'
 
-workflow SHORT_SPADES {
+workflow SPADES {
 	take:
 		fqs_ch
+		fql_ch
 	main:
-		SPADES(fqs_ch.map({meta,fqs -> [meta,fqs,[]]})) | SPADES_ADAPT
+		SPADES_RUN(fqs_ch.join(fql_ch,remainder:true).map({meta,fqs,fql -> [meta,fqs?:[],fql?:[]]})) | SPADES_ADAPT
 	emit:
 		fasta = SPADES_ADAPT.out.fasta
-		dir   = SPADES.out
+		dir   = SPADES_RUN.out
 }

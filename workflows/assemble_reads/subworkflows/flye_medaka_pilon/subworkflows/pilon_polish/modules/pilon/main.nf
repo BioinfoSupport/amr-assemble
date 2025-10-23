@@ -3,7 +3,6 @@ process PILON {
     memory '10 GB'
     cpus 6
     time '4h'
-    ext.args = '--fix all --changes'
     input:
         tuple val(meta), path('assembly.fasta'), path('short_reads.bam'), path('short_reads.bam.bai')
     output:
@@ -14,7 +13,7 @@ process PILON {
     && java -Xmx8000M -jar /usr/local/share/pilon*/pilon.jar \
        --genome assembly.fasta \
        --bam short_reads.bam \
-       ${task.ext.args} \
+       ${task.ext.args?:'--fix all --changes'} \
        --threads ${task.cpus} \
        --output pilon/pilon
     """

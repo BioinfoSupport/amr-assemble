@@ -1,25 +1,14 @@
 
-include { HYBRACTER   } from './modules/hybracter'
-include { HYBRACTER_ADAPT } from './modules/hybracter/adapt'
+include { HYBRACTER as HYBRACTER_RUN  } from './modules/hybracter'
+include { HYBRACTER_ADAPT             } from './modules/hybracter/adapt'
 
-workflow HYBRID_HYBRACTER {
+workflow HYBRACTER {
 	take:
-	  fql_ch
 		fqs_ch
+	  fql_ch
 	main:
-		HYBRACTER(fqs_ch.join(fql_ch)) | HYBRACTER_ADAPT
+		HYBRACTER_RUN(fqs_ch.join(fql_ch,remainder:true).map({meta,fqs,fql -> [meta,fqs?:[],fql?:[]]})) | HYBRACTER_ADAPT
 	emit:
 		fasta = HYBRACTER_ADAPT.out.fasta
-		dir   = HYBRACTER.out
+		dir   = HYBRACTER_RUN.out
 }
-
-workflow LONG_HYBRACTER {
-	take:
-		fql_ch
-	main:
-		HYBRACTER(fql_ch.map({meta,fql -> [meta,[],fql]})) | HYBRACTER_ADAPT
-	emit:
-		fasta = HYBRACTER_ADAPT.out.fasta
-		dir   = HYBRACTER.out
-}
-

@@ -3,7 +3,6 @@ process SPADES {
     memory '20 GB'
     cpus 8
     time '4h'
-    ext.args = ''
     input:
         tuple val(meta), path(illumina), path(nanopore)
     output:
@@ -14,7 +13,7 @@ process SPADES {
 	      def short_reads = illumina?(illumina.size()==1?"-s ${illumina[0]}":"-1 ${illumina[0]} -2 ${illumina[1]}"):''
 		    """
 		    mkdir -p spades && spades.py \\
-		        ${task.ext.args} \\
+		        ${task.ext.args?:''} \\
 		        --threads ${task.cpus} \\
 		        --memory ${task.memory.toGiga()} \\
 		        ${short_reads} ${nanopore_reads} \\
