@@ -1,5 +1,6 @@
 
 include { FLYE             } from './modules/flye'
+include { FLYE_ADAPT       } from './modules/flye/adapt'
 include { MEDAKA_CONSENSUS } from './modules/medaka/consensus'
 include { MEDAKA_ADAPT     } from './modules/medaka/adapt'
 include { ORGANIZE_FILES   } from './modules/organize_files'
@@ -13,7 +14,8 @@ workflow FLYE_MEDAKA_PILON {
 		fqs_ch
 		fql_ch
 	main:
-		FLYE(fql_ch).join(fql_ch) | MEDAKA_CONSENSUS | MEDAKA_ADAPT
+		FLYE(fql_ch) | FLYE_ADAPT
+		FLYE_ADAPT.out.fasta.join(fql_ch) | MEDAKA_CONSENSUS | MEDAKA_ADAPT
 		PILON_POLISH_ROUND1(MEDAKA_ADAPT.out.fasta,fqs_ch)
 		PILON_POLISH_ROUND2(PILON_POLISH_ROUND1.out.fasta,fqs_ch)
 		PILON_POLISH_ROUND3(PILON_POLISH_ROUND2.out.fasta,fqs_ch)

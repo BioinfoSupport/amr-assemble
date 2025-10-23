@@ -88,7 +88,7 @@ workflow {
 
 output {
 	sequencing_multiqc {
-		path { m,f -> "./sequencing_qc.html" }
+		path { m,f -> f >> "./sequencing_qc.html" }
 		mode 'copy'
 	}
 

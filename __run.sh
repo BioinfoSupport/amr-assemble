@@ -27,18 +27,23 @@ nextflow run . -profile docker,arm64 \
 
 # Merge dev branch with master branch
 git checkout dev
-git merge main
-git checkout main
+git merge master
+git checkout master
 git merge dev
-git tag -a v0.1-beta -m "First beta release of the assembly pipeline"
+git tag -a v0.1-beta2 -m "First beta release of the assembly pipeline"
 git push origin --tags
 git push origin
 git checkout dev
 
 
 
-
+# Test on HPC
+rsync -av data prados@bamboo:~/scratch/test_asm/
 ssh prados@bamboo
+cd ~/scratch/test_asm
+nextflow run BioinfoSupport/amr-assemble -r v0.1-beta -profile hpc --samplesheet=data/samplesheet.csv
 
-apptainer run 
+
+
+
 
