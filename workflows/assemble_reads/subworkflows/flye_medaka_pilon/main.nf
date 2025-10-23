@@ -1,20 +1,11 @@
 
 include { FLYE             } from './modules/flye'
 include { MEDAKA_CONSENSUS } from './modules/medaka/consensus'
+include { ORGANIZE_FILES } from './modules/organize_files'
 include { PILON_POLISH as PILON_POLISH_ROUND1 } from './subworkflows/pilon_polish'
 include { PILON_POLISH as PILON_POLISH_ROUND2 } from './subworkflows/pilon_polish'
 include { PILON_POLISH as PILON_POLISH_ROUND3 } from './subworkflows/pilon_polish'
 
-
-process FLYE_MEDAKA_PILON_FOLDER {
-    input:
-    	tuple val(meta),path('flye_medaka_pilon/01_flye'),path('flye_medaka_pilon/02_medaka'),path('flye_medaka_pilon/03_pilon_round1'),path('flye_medaka_pilon/04_pilon_round2'),path('flye_medaka_pilon/05_pilon_round3')
-    output:
-    	tuple val(meta),path("flye_medaka_pilon",type: 'dir')
-    script:
-    """
-    """
-}
 
 workflow FLYE_MEDAKA_PILON {
 	take:
@@ -25,17 +16,19 @@ workflow FLYE_MEDAKA_PILON {
 		PILON_POLISH_ROUND1(MEDAKA_CONSENSUS.out.fasta,fqs_ch)
 		PILON_POLISH_ROUND2(PILON_POLISH_ROUND1.out.fasta,fqs_ch)
 		PILON_POLISH_ROUND3(PILON_POLISH_ROUND2.out.fasta,fqs_ch)
-		// TODO: check what happen if fqs_ch is empty
-		// TODO: if fqs is empty we must return MEDAKA_CONSENSUS.out.fasta
-		// TODO: if fqs is empty we must produce a folder without PILON polishing
-		FLYE_MEDAKA_PILON_FOLDER(
+		ORGANIZE_FILES(
 			FLYE.out.dir
-			.join(MEDAKA_CONSENSUS.out.dir)
-			.join(PILON_POLISH_ROUND1.out.dir)
-			.join(PILON_POLISH_ROUND2.out.dir)
-			.join(PILON_POLISH_ROUND3.out.dir)
+			.join(MEDAKA_CONSENSUS.out.dir, remainder: true)
+			.join(PILON_POLISH_ROUND1.out.dir, remainder: true)
+			.join(PILON_POLISH_ROUND2.out.dir, remainder: true)
+			.join(PILON_POLISH_ROUND3.out.dir, remainder: true)
+			.map({meta,x1,x2,x3,x4,x5 -> tuple(meta,[[x1,'01_flye'],[x2,'02_medaka'],[x3,'03_pilon_round1'],[x4,'04_pilon_round2'],[x5,'05_pilon_round3']].findAll({x,y -> x}))})
 		)
+		
+		fa_ch = MEDAKA_CONSENSUS.out.fasta
+		.join(PILON_POLISH_ROUND3.out.fasta,remainder: true)
+		.map({meta,fa1,fa2 -> [meta,fa2?fa2:fa1]})
 	emit:
-		fasta = PILON_POLISH_ROUND3.out.fasta
-		dir = FLYE_MEDAKA_PILON_FOLDER.out
+		fasta = fa_ch
+		dir = ORGANIZE_FILES.out
 }
