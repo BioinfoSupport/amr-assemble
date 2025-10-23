@@ -14,5 +14,9 @@ process MULTIQC {
 	    """
 	    multiqc ${task.ext.args} --force --config config.yml --filename multiqc.html db/
 	    """
+	  stub:
+	  	"""
+	  	touch multiqc.html
+	  	"""
 }
 
