@@ -13,12 +13,12 @@ workflow FLYE_MEDAKA_PILON {
 		fql_ch
 		fqs_ch
 	main:
-		FLYE(fql_ch).fasta.join(fql_ch) | MEDAKA_CONSENSUS | MEDAKA_ADAPT
+		FLYE(fql_ch).join(fql_ch) | MEDAKA_CONSENSUS | MEDAKA_ADAPT
 		PILON_POLISH_ROUND1(MEDAKA_ADAPT.out.fasta,fqs_ch)
 		PILON_POLISH_ROUND2(PILON_POLISH_ROUND1.out.fasta,fqs_ch)
 		PILON_POLISH_ROUND3(PILON_POLISH_ROUND2.out.fasta,fqs_ch)
 		ORGANIZE_FILES(
-			FLYE.out.dir
+			FLYE.out
 			.join(MEDAKA_CONSENSUS.out, remainder: true)
 			.join(PILON_POLISH_ROUND1.out.dir, remainder: true)
 			.join(PILON_POLISH_ROUND2.out.dir, remainder: true)

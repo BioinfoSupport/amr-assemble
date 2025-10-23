@@ -21,6 +21,7 @@ process PILON {
     stub:
     """
     mkdir -p pilon
+    touch pilon/pilon.fasta
     """
 }
 
