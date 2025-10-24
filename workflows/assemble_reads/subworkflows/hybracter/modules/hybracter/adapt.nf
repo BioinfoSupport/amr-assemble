@@ -7,7 +7,6 @@ process HYBRACTER_ADAPT {
 	"""
 	if [ -f hybracter/FINAL_OUTPUT/complete/sample_final.fasta ]; then
 			ln -s hybracter/FINAL_OUTPUT/complete/sample_final.fasta assembly.fasta
-	else
 	fi
 	"""
 } 
