@@ -5,5 +5,9 @@ process HYBRACTER_ADAPT {
       tuple val(meta), path('assembly.fasta'), emit:fasta
 	script:
 	"""
+	if [ -f hybracter/FINAL_OUTPUT/complete/sample_final.fasta ]; then
+			ln -s hybracter/FINAL_OUTPUT/complete/sample_final.fasta assembly.fasta
+	else
+	fi
 	"""
 } 
