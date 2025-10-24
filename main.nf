@@ -68,20 +68,19 @@ workflow {
 		ASSEMBLE_READS(params.assembly,ss.sr_ch,ss.lr_ch)
 
 		// Assembly QC
-		/*
-		meta_map = asm_ch.map({m1,m2,dir,fa,info -> [m1,[m1,m2]]})
+		meta_map = ASSEMBLE_READS.out.fasta.map({m1,m2,fa -> [m1,[m1,m2]]})
 		ASSEMBLY_QC(
-			asm_ch.map({m1,m2,dir,fa,info -> [[m1,m2],fa]}),
-			meta_map.join(ss.lr_ch).map({[it[1],it[2]]}),
-			meta_map.join(ss.sr_ch).map({[it[1],it[2]]})
+			ASSEMBLE_READS.out.fasta.map({m1,m2,fa -> [[m1,m2],fa]}),
+			meta_map.join(ss.sr_ch).map({m1,m2,x -> [m2,x]}),
+			meta_map.join(ss.lr_ch).map({m1,m2,x -> [m2,x]})
 		)
-		*/
 		
 	publish:
 		sequencing_multiqc = SEQUENCING_QC.out.multiqc_html
 		asm_fasta = ASSEMBLE_READS.out.fasta
 		asm_dir = ASSEMBLE_READS.out.dir
-		//assemblies_qc_html = ASSEMBLY_QC.out.html
+		asm_contigs_qc_tsv = ASSEMBLY_QC.out.contigs_qc_tsv
+		asm_qc_tsv = ASSEMBLY_QC.out.assembly_qc_tsv
 }
 
 
@@ -89,16 +88,17 @@ workflow {
 output {
 	sequencing_multiqc {
 		path { m,f -> f >> "./sequencing_qc.html" }
-		mode 'copy'
 	}
-
 	asm_fasta {
 		path { m1,m2,x -> x >> "samples/${m1.sample_id}/assemblies/${m2.assembly_name}/assembly.fasta"}
-		mode 'copy'
 	}
-
 	asm_dir {
 		path { m1,m2,x -> x >> "samples/${m1.sample_id}/assemblies/${m2.assembly_name}/output"}
-		mode 'copy'
+	}
+	asm_contigs_qc_tsv {
+		path { m,x -> x >> "samples/${m[0].sample_id}/assemblies/${m[1].assembly_name}/contigs_qc.tsv"}
+	}
+	asm_qc_tsv {
+		path { m,x -> x >> "samples/${m[0].sample_id}/assemblies/${m[1].assembly_name}/assembly_qc.tsv"}
 	}
 }

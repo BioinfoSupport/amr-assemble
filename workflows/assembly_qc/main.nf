@@ -5,17 +5,11 @@ include { SAMTOOLS_STATS as SAMTOOLS_STATS_SHORT } from './modules/samtools/stat
 include { BWA_MEM            } from './modules/bwa/mem'
 include { BWA_INDEX          } from './modules/bwa/index'
 include { ORGANIZE_FILES     } from './modules/organize_files'
-include { RMD_RENDER         } from './modules/rmd/render'
+//include { RMD_RENDER         } from './modules/rmd/render'
 
 
 
 /* Assembly stats
-Number of contigs
-Total assembly length
-N50
-GC content
-Longest contig size
-Shortest contig size
 Short Reads
   - % mapped
   - % properly paired
@@ -29,8 +23,6 @@ Long Reads
 */
 
 /* Contigs stats
-Contig length
-GC content
 Short Reads
   - % mapped
   - % properly paired
@@ -43,7 +35,6 @@ Long Reads
 /* Report
 Short Reads
    - inter contigs links
-
 */
 
 
@@ -59,6 +50,29 @@ process IGV_SCRIPT {
 	"""
 }
 */
+
+
+process ASSEMBLY_QC_STATS {
+	  container "registry.gitlab.unige.ch/amr-genomics/rscript:main"
+    memory '8 GB'
+    cpus 2
+    time '30 min'
+    input:
+    		tuple val(meta), path("stats")
+    		path("assets") 
+    output:
+        tuple val(meta), path('contigs_qc.tsv'), emit:'contigs_qc_tsv'
+        tuple val(meta), path('assembly_qc.tsv'), emit:'assembly_qc_tsv'
+    script:
+				"""
+				#!/usr/bin/env Rscript
+				source("assets/lib_assembly_stats.R")
+				contigs <- fa_extract_contigs_stats("stats/assembly.fasta") 
+				contigs |> write_tsv("contigs_qc.tsv")
+				contigs |> assembly_summary_stats() |> write_tsv("assembly_qc.tsv")
+				"""
+}
+
 
 
 workflow ASSEMBLY_QC {
@@ -81,14 +95,19 @@ workflow ASSEMBLY_QC {
 			fa_ch
 				.join(SAMTOOLS_STATS_LONG.out,remainder:true)
 				.join(SAMTOOLS_STATS_SHORT.out,remainder:true)
-				.map({meta,x1,x2,x3 -> [meta,[[x1,"assembly.fasta"],[x2,"long_reads.bam.stats"],[x3,"short_reads.bam.stats"]]]})
+				.map({meta,x1,x2,x3 -> [meta,[[x1,"assembly.fasta"],[x2,"long_reads.bam.stats"],[x3,"short_reads.bam.stats"]].findAll({x,y -> x})]})
 				| ORGANIZE_FILES
+			
+			ASSEMBLY_QC_STATS(ORGANIZE_FILES.out,"${moduleDir}/assets")
+			
+			/*	
 			RMD_RENDER(
 				ORGANIZE_FILES.out.map({m,x -> [m,x,"isolate_dir='${x}'"]}),
 				file("${moduleDir}/assets/isolate_assembly_qc.Rmd"),
 				file("${moduleDir}/assets/isolate_assembly_qc.Rmd")
 			)
-
+			*/
+			
 			//TODO: CHARACTERIZE_UNMAPPED_READS
 			//TODO: QC_AGGREGATOR
 	emit:
@@ -102,7 +121,9 @@ workflow ASSEMBLY_QC {
 		short_bam_stats = SAMTOOLS_STATS_SHORT.out
 		short_vcf       = Channel.empty()
 		
-		html            = RMD_RENDER.out.html
+		contigs_qc_tsv  = ASSEMBLY_QC_STATS.out.contigs_qc_tsv
+		assembly_qc_tsv = ASSEMBLY_QC_STATS.out.assembly_qc_tsv
+		//html            = RMD_RENDER.out.html
 }
 
 
