@@ -64,8 +64,8 @@ process IGV_SCRIPT {
 workflow ASSEMBLY_QC {
 	take:
 		fa_ch
-		fql_ch
 		fqs_ch
+		fql_ch
 	main:
 			// Short reads alignment and statistics
 			BWA_MEM(BWA_INDEX(fa_ch).join(fqs_ch))
@@ -78,7 +78,6 @@ workflow ASSEMBLY_QC {
 			//TODO: RUN VCF_LONG
 			//TODO: RUN VCF_SHORT
 			//TODO: HTML_AND_JSON_QC_REPORT()
-			
 			fa_ch
 				.join(SAMTOOLS_STATS_LONG.out,remainder:true)
 				.join(SAMTOOLS_STATS_SHORT.out,remainder:true)
